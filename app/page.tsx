@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import { Button } from "@/components/ui/button";
-import { Menu, User } from "lucide-react";
 import Image from "next/image";
+import SignInButton from "@/components/ui/sign-in-button";
+import SignUpButton from "@/components/ui/sign-up-button";
 
 export const metadata: Metadata = {
   title: "MyLittleCockpit - Plateforme de gestion",
@@ -18,7 +18,7 @@ export const metadata: Metadata = {
 
 export default function HomePage() {
   return (
-    <main className="flex flex-col items-center justify-between px-4 pt-8 outline outline-blue-500">
+    <main className="flex flex-col items-center justify-between px-4 pt-8">
       <div className="w-full opacity-85 relative mb-8">
         <div className="flex justify-start px-[38px]">
           <Image
@@ -71,12 +71,8 @@ export default function HomePage() {
 
       {/* Buttons */}
       <div className="w-full space-y-2">
-        <button className="w-full bg-[#cf4326] text-white rounded-md px-4 py-2 text-[14px] font-medium">
-          S'inscrire
-        </button>
-        <button className="w-full bg-neutral-100 text-[#cf4326] rounded-md px-4 py-2 text-[14px] font-medium underline">
-          Se connecter
-        </button>
+        <SignUpButton />
+        <SignInButton />
       </div>
     </main>
   );

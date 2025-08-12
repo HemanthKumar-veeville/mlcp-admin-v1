@@ -1,5 +1,5 @@
-import Link from "next/link"
-import { Facebook, Twitter, Linkedin, Mail, Phone, MapPin } from "lucide-react"
+import Link from "next/link";
+import { Facebook, Twitter, Linkedin, Mail, Phone, MapPin } from "lucide-react";
 
 export function Footer() {
   return (
@@ -10,26 +10,41 @@ export function Footer() {
           <div className="space-y-4">
             <div className="flex items-center space-x-2">
               <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-sm">YC</span>
+                <span className="text-primary-foreground font-bold text-sm">
+                  YC
+                </span>
               </div>
               <span className="font-bold text-xl">Your Company</span>
             </div>
             <p className="text-sm text-muted-foreground">
-              Excellence in innovation. We provide top-tier solutions designed to elevate your business to new heights.
+              Excellence in innovation. We provide top-tier solutions designed
+              to elevate your business to new heights.
             </p>
           </div>
 
           {/* Quick Links */}
           <div className="space-y-4">
             <h3 className="font-semibold">Quick Links</h3>
-            <nav className="flex flex-col space-y-2" aria-label="Footer navigation">
-              <Link href="/" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+            <nav
+              className="flex flex-col space-y-2"
+              aria-label="Footer navigation"
+            >
+              <Link
+                href="/"
+                className="text-sm text-muted-foreground hover:text-primary transition-colors"
+              >
                 Home
               </Link>
-              <Link href="/about" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+              <Link
+                href="/about"
+                className="text-sm text-muted-foreground hover:text-primary transition-colors"
+              >
                 About Us
               </Link>
-              <Link href="/contact" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+              <Link
+                href="/contact"
+                className="text-sm text-muted-foreground hover:text-primary transition-colors"
+              >
                 Contact
               </Link>
             </nav>
@@ -45,13 +60,19 @@ export function Footer() {
               </div>
               <div className="flex items-center space-x-2 text-sm text-muted-foreground">
                 <Phone className="h-4 w-4" />
-                <a href="tel:+15551234567" className="hover:text-primary transition-colors">
+                <a
+                  href="tel:+15551234567"
+                  className="hover:text-primary transition-colors"
+                >
                   +1 (555) 123-4567
                 </a>
               </div>
               <div className="flex items-center space-x-2 text-sm text-muted-foreground">
                 <Mail className="h-4 w-4" />
-                <a href="mailto:info@yourcompany.com" className="hover:text-primary transition-colors">
+                <a
+                  href="mailto:info@yourcompany.com"
+                  className="hover:text-primary transition-colors"
+                >
                   info@yourcompany.com
                 </a>
               </div>
@@ -100,5 +121,5 @@ export function Footer() {
         </div>
       </div>
     </footer>
-  )
+  );
 }

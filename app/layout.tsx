@@ -138,7 +138,7 @@ export default function RootLayout({
         />
       </head>
       <body className={montserrat.className}>
-        <div className="bg-[#fdfaf6] w-full h-full max-w-[320px] max-h-[568px] mx-auto outline outline-red-500">
+        <div className="bg-[#fdfaf6] w-full h-full max-w-[320px] max-h-[568px] mx-auto">
           <Navbar />
           <main className="flex-1">{children}</main>
         </div>
