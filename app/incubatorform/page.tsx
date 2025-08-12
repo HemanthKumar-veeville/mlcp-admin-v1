@@ -15,6 +15,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { ArrowLeft, Menu, User } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 const formSchema = z
   .object({
@@ -41,7 +42,7 @@ type FormData = z.infer<typeof formSchema>;
 
 export default function IncubatorFormPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
-
+  const router = useRouter();
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -69,7 +70,10 @@ export default function IncubatorFormPage() {
       <div className="flex flex-col gap-8 items-start justify-center relative w-full">
         <div className="flex flex-col gap-4 items-start justify-start relative w-full">
           {/* Back Button */}
-          <button className="flex flex-col gap-4 items-start justify-center relative">
+          <button
+            className="flex flex-col gap-4 items-start justify-center relative"
+            onClick={() => router.back()}
+          >
             <div className="flex flex-row gap-2 items-center justify-start relative w-full">
               <ArrowLeft className="w-6 h-6 text-neutral-900" />
               <div className="font-medium leading-[0] text-[12px] text-left text-[#2a2a2a]">
@@ -83,8 +87,8 @@ export default function IncubatorFormPage() {
             <div className="flex flex-col gap-4 items-start justify-start relative w-full">
               {/* Title */}
               <div className="flex flex-col gap-1 items-start justify-start relative w-full">
-                <div className="leading-[0] relative text-[24px] text-left text-[#2a2a2a]">
-                  <p className="block leading-[1.5]">Vos informations</p>
+                <div className="relative text-left text-[24px] font-poppins font-bold leading-[150%] text-[var(--Black-Text-Color,#2A2A2A)]">
+                  Vos informations
                 </div>
               </div>
             </div>
@@ -282,11 +286,6 @@ export default function IncubatorFormPage() {
             </Form>
           </div>
         </div>
-      </div>
-
-      {/* Progress Bar */}
-      <div className="absolute flex flex-row gap-2 items-start justify-start left-0 top-16 w-80">
-        <div className="bg-[#cf4326] h-[5px] shrink-0 w-[45.71px]" />
       </div>
     </div>
   );
