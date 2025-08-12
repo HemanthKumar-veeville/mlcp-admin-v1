@@ -60,8 +60,7 @@ export default function IncubatorFormPage() {
     setIsSubmitting(true);
     await new Promise((resolve) => setTimeout(resolve, 2000));
     setIsSubmitting(false);
-    // Handle form submission
-    console.log(data);
+    router.push("/validation");
   };
 
   return (
