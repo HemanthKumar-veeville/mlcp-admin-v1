@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowLeft, User, Menu } from "lucide-react";
+import { ArrowLeft, User, Menu, Search } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
@@ -39,171 +39,78 @@ export default function IncubatorSearchPage() {
   );
 
   return (
-    <div className="flex flex-col gap-4 items-center justify-start pb-8 pt-0 px-0 relative size-full bg-[#fdfaf6]">
-      {/* Header */}
-      <div className="flex flex-row items-center justify-between px-8 py-4 relative shrink-0 w-80">
-        <div className="flex flex-row items-start justify-start p-0 relative shrink-0">
-          <div className="flex flex-row h-6 items-center justify-center p-0 relative shrink-0">
-            <Menu className="text-[#2a2a2a] text-[24px]" />
+    <div className="bg-[#fdfaf6] flex flex-col">
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col px-4 pb-8 max-w-md mx-auto w-full">
+        {/* Back Button and Title */}
+        <div className="flex flex-col gap-4 mb-4">
+          <Link href="/incubatorform" className="w-full">
+            <button className="flex items-center gap-2 w-full text-left">
+              <ArrowLeft className="text-[#2a2a2a] text-2xl" />
+              <span className="font-medium text-[#2a2a2a] text-xs">Retour</span>
+            </button>
+          </Link>
+          <div className="flex flex-col gap-2">
+            <h1 className="font-bold text-[#2a2a2a] text-2xl leading-tight">
+              Votre incubateur
+            </h1>
           </div>
         </div>
-        <div className="flex flex-row gap-1 items-center justify-start p-0 relative shrink-0">
-          <div className="flex flex-col items-end justify-center pb-1 pt-0 px-0 relative shrink-0">
-            <div className="font-bold leading-[0] mb-[-4px] not-italic relative shrink-0 text-[#1a1d26] text-[18px] text-left text-nowrap">
-              <p className="block leading-[1.1] whitespace-pre">
-                MyLittleCockpit
-              </p>
-            </div>
-          </div>
-        </div>
-        <div className="bg-[#2a2a2a] flex flex-row items-center justify-center p-0 relative rounded-[100px] shrink-0 size-8">
-          <User className="text-[16px] text-neutral-50" />
-        </div>
-      </div>
 
-      {/* Main Container */}
-      <div className="basis-0 flex flex-col grow items-center justify-between min-h-px min-w-px px-4 py-0 relative shrink-0 w-full">
-        <div className="basis-0 flex flex-col gap-4 grow items-start justify-start min-h-px min-w-px pb-4 pt-0 px-0 relative shrink-0 w-full">
-          {/* Back Button and Title */}
-          <div className="flex flex-col gap-4 items-center justify-start p-0 relative shrink-0 w-full">
-            <Link href="/incubatorform" className="w-full">
-              <button className="flex flex-col gap-4 items-start justify-center overflow-visible p-0 relative shrink-0 w-full">
-                <div className="flex flex-row gap-2 items-center justify-start p-0 relative shrink-0 w-full">
-                  <div className="flex flex-row items-start justify-start p-0 relative shrink-0">
-                    <ArrowLeft className="text-[#2a2a2a] text-[24px]" />
-                  </div>
-                  <div className="font-medium leading-[0] not-italic relative shrink-0 text-[#2a2a2a] text-[12px] text-left text-nowrap">
-                    <p className="block leading-[16px] whitespace-pre">
-                      Retour
-                    </p>
-                  </div>
-                </div>
-              </button>
-            </Link>
-            <div className="flex flex-col gap-4 items-start justify-center p-0 relative shrink-0 w-full">
-              <div className="flex flex-col gap-2 items-start justify-start p-0 relative shrink-0 w-full">
-                <div className="flex flex-col gap-2 items-start justify-start p-0 relative shrink-0 w-full">
-                  <div className="font-bold leading-[0] not-italic relative shrink-0 text-[#2a2a2a] text-[24px] text-left text-nowrap">
-                    <p className="block leading-[1.3] whitespace-pre">
-                      Votre incubateur
-                    </p>
-                  </div>
-                </div>
-              </div>
+        {/* Search Container */}
+        <div className="flex-1 flex flex-col bg-white rounded-lg overflow-hidden">
+          {/* Search Input */}
+          <div className="p-1">
+            <div className="flex items-center h-10 px-3 py-2 border border-neutral-300 rounded-md">
+              <input
+                type="text"
+                placeholder="Recherchez votre incubateur"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="flex-1 text-sm text-neutral-500 bg-transparent border-none outline-none placeholder-neutral-500"
+              />
+              <Search className="text-neutral-500 w-4 h-4 ml-2" />
             </div>
           </div>
 
-          {/* Search Container */}
-          <div className="basis-0 bg-[#ffffff] flex flex-col gap-2 grow items-start justify-start min-h-px min-w-px p-0 relative rounded shrink-0 w-full">
-            {/* Search Input */}
-            <div className="flex flex-col gap-2.5 items-start justify-start p-[4px] relative shrink-0 w-full">
-              <div className="flex flex-row gap-2 items-start justify-start p-0 relative shrink-0 w-full">
-                <div className="basis-0 bg-[#ffffff] flex flex-row grow h-10 items-center justify-start min-h-10 min-w-px px-3 py-2 relative rounded-md shrink-0 border border-neutral-300">
-                  <div className="basis-0 font-normal grow leading-[0] min-h-px min-w-px not-italic relative shrink-0 text-[14px] text-left text-neutral-500">
-                    <input
-                      type="text"
-                      placeholder="Recherchez votre incubateur"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full bg-transparent border-none outline-none text-[14px] text-neutral-500 placeholder-neutral-500"
-                    />
-                  </div>
-                  <div
-                    className="overflow-clip relative shrink-0 size-4"
-                    data-name="Icon"
-                  >
-                    <div className="absolute inset-[8.33%_16.67%_16.67%_8.33%]">
-                      <img
-                        alt="Search icon part 1"
-                        className="block max-w-none size-full"
-                        src={img}
-                      />
-                    </div>
-                    <div className="absolute inset-[65.21%_8.33%_8.33%_65.21%]">
-                      <img
-                        alt="Search icon part 2"
-                        className="block max-w-none size-full"
-                        src={img1}
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+          {/* Separator */}
+          <div className="h-px bg-neutral-300 w-full my-4"></div>
 
-            {/* Separator */}
-            <div className="h-0 shrink-0 w-full" data-name="Separator">
-              <div className="absolute bottom-[-0.5px] left-0 right-0 top-[-0.5px]">
-                <img
-                  alt="Separator"
-                  className="block max-w-none size-full"
-                  src={imgSeparator}
-                />
-              </div>
-            </div>
-
-            {/* Incubator List */}
-            <div className="basis-0 bg-[#ffffff] flex flex-col grow items-start justify-start min-h-px min-w-px overflow-x-clip overflow-y-auto p-[4px] relative rounded-lg shrink-0 w-full">
-              {/* Separator */}
-              <div
-                className="h-0 relative shrink-0 w-full"
-                data-name="Separator"
-              >
-                <div className="absolute bottom-[-0.5px] left-0 right-0 top-[-0.5px]">
+          {/* Incubator List */}
+          <div className="flex flex-col gap-2">
+            {/* Incubator Items */}
+            {filteredIncubators.map((incubator, index) => (
+              <div key={incubator.id}>
+                <button
+                  onClick={() => setSelectedIncubator(incubator.id)}
+                  className={`w-full flex items-center gap-2 px-4 py-3 min-h-11 hover:bg-neutral-50 transition-colors ${
+                    selectedIncubator === incubator.id ? "bg-neutral-50" : ""
+                  }`}
+                >
                   <img
-                    alt="Separator"
-                    className="block max-w-none size-full"
-                    src={imgSeparator1}
+                    src={incubator.logo}
+                    alt={incubator.name}
+                    className="w-8 h-auto object-contain"
                   />
-                </div>
+                  <span className="font-medium text-sm text-neutral-600 text-left">
+                    {incubator.name}
+                  </span>
+                </button>
+                {index < filteredIncubators.length - 1 && (
+                  <div className="h-px bg-neutral-300 w-full"></div>
+                )}
               </div>
-
-              {/* Incubator Items */}
-              {filteredIncubators.map((incubator, index) => (
-                <div key={incubator.id}>
-                  <button
-                    onClick={() => setSelectedIncubator(incubator.id)}
-                    className={`bg-[#ffffff] flex flex-row gap-2 items-center justify-start min-h-11 min-w-11 px-4 py-3 relative shrink-0 w-full hover:bg-neutral-50 transition-colors ${
-                      selectedIncubator === incubator.id ? "bg-neutral-50" : ""
-                    }`}
-                  >
-                    <div
-                      className="bg-center bg-contain bg-no-repeat rounded-[99px] shrink-0 size-6"
-                      style={{ backgroundImage: `url('${incubator.logo}')` }}
-                    />
-                    <div className="font-medium leading-[0] not-italic relative shrink-0 text-[14px] text-center text-neutral-600 text-nowrap">
-                      <p className="block leading-[20px] whitespace-pre">
-                        {incubator.name}
-                      </p>
-                    </div>
-                  </button>
-                  {index < filteredIncubators.length - 1 && (
-                    <div
-                      className="h-0 relative shrink-0 w-full"
-                      data-name="Separator"
-                    >
-                      <div className="absolute bottom-[-0.5px] left-0 right-0 top-[-0.5px]">
-                        <img
-                          alt="Separator"
-                          className="block max-w-none size-full"
-                          src={imgSeparator2}
-                        />
-                      </div>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
+            ))}
           </div>
         </div>
 
         {/* Bottom Buttons */}
-        <div className="flex flex-col gap-2 items-center justify-center p-0 relative shrink-0 w-full">
+        <div className="flex flex-col gap-2 mt-4">
           <button
             disabled={!selectedIncubator}
-            className={`flex flex-row gap-2 items-center justify-center min-h-10 min-w-10 px-4 py-2 relative rounded-md shrink-0 w-full font-medium text-[14px] transition-colors ${
+            className={`w-full h-10 px-4 py-2 rounded-md font-medium text-sm transition-colors ${
               selectedIncubator
-                ? "bg-[#cf4326] text-[#ffffff] hover:bg-[#b83a22]"
+                ? "bg-[#cf4326] text-white hover:bg-[#b83a22]"
                 : "bg-neutral-300 text-neutral-500 cursor-not-allowed"
             }`}
             onClick={() => {
@@ -212,10 +119,15 @@ export default function IncubatorSearchPage() {
               }
             }}
           >
-            <span className="block leading-[20px]">Continuer</span>
+            Continuer
           </button>
-          <button className="bg-neutral-100 flex flex-row gap-2 items-center justify-center min-h-10 min-w-10 px-4 py-2 relative rounded-md shrink-0 w-full font-medium text-[14px] text-[#cf4326] hover:bg-neutral-200 transition-colors">
-            <span className="block leading-[20px]">Créer mon incubateur</span>
+          <button
+            className="w-full h-10 px-4 py-2 bg-neutral-100 rounded-md font-medium text-sm text-[#cf4326] hover:bg-neutral-200 transition-colors"
+            onClick={() => {
+              router.push("/incubator_signup");
+            }}
+          >
+            Créer mon incubateur
           </button>
         </div>
       </div>
