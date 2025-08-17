@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowLeft, User, Check } from "lucide-react";
+import { ArrowLeft, User, Check, ChevronDown, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -15,42 +15,36 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useRouter } from "next/navigation";
 
 // Image assets from Figma
-const img =
-  "http://localhost:3845/assets/ec284f1384fbdf6e8b0e1b84fbe9d5e1c977fa17.svg";
-const img1 =
-  "http://localhost:3845/assets/1b002524161aac295087eff25e2787ba07656896.svg";
 const imgEllipse13 =
   "http://localhost:3845/assets/a8be8a0d95a1343f5194f1bf1a9f6d67c038aaca.svg";
 const imgContainer =
   "http://localhost:3845/assets/5a2cbb31619dced1a60a5841880006c89dbf1b32.svg";
 
 export default function IncubatorPricingPage() {
-  const [activeTab, setActiveTab] = useState("complete");
+  const [activeTab, setActiveTab] = useState("solo");
   const router = useRouter();
+
   // Content for each tab based on Figma designs
   const tabContent = {
-    complete: {
-      title: "Complète",
+    solo: {
+      title: "Formule Solo",
       description:
-        "Accès illimité à la plateforme pour vous et vos startups, avec gestion centralisée et accompagnement personnalisé.",
-      price: "1000€ / an et par utilisateur",
-      priceSubtext: "incubé",
-      popular: true,
+        "Parfait pour les fondateurs solo ou les petites structures en démarrage.",
+      price: "35€",
+      priceSubtext: "/mois",
+      popular: false,
+      userCount: "1 personne",
+      showUserIcon: true,
     },
-    shared: {
-      title: "Partagé",
+    team: {
+      title: "Formule Équipe",
       description:
-        "Co-financé à 50/50\n\n✅ Startup : 500 €\n✅ Incubateur : 500 €",
-      price: "1000 € / utilisateur / an",
-      priceSubtext: "",
+        "Bénéficiez de toutes les fonctionnalités pour votre équipe, avec un accès partagé sécurisé et centralisé.",
+      price: "750€",
+      priceSubtext: "/ an",
       popular: true,
-    },
-    custom: {
-      title: "Sur-mesure",
-      description: "Adaptée à votre structure",
-      price: "Contacter contact@mlc.com",
-      priceSubtext: "",
-      popular: true,
+      userCount: "2 à 5",
+      showUserIcon: false,
     },
   };
 
@@ -85,22 +79,16 @@ export default function IncubatorPricingPage() {
           >
             <TabsList className="bg-neutral-100 p-1 w-full">
               <TabsTrigger
-                value="complete"
+                value="solo"
                 className="flex-1 data-[state=active]:bg-white data-[state=active]:text-[#cf4326] data-[state=active]:shadow-sm"
               >
-                Complète
+                Formule Solo
               </TabsTrigger>
               <TabsTrigger
-                value="shared"
+                value="team"
                 className="flex-1 data-[state=active]:bg-white data-[state=active]:text-[#cf4326] data-[state=active]:shadow-sm"
               >
-                Partagé
-              </TabsTrigger>
-              <TabsTrigger
-                value="custom"
-                className="flex-1 data-[state=active]:bg-white data-[state=active]:text-[#cf4326] data-[state=active]:shadow-sm"
-              >
-                Sur-mesure
+                Formule Équipe
               </TabsTrigger>
             </TabsList>
           </Tabs>
@@ -124,25 +112,46 @@ export default function IncubatorPricingPage() {
                     {currentContent.title}
                   </CardTitle>
                   <div className="flex items-center gap-1">
+                    {currentContent.showUserIcon ? (
+                      <div className="flex items-center gap-2.5 w-4 h-4">
+                        <User size={16} className="text-neutral-600" />
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-2.5 w-4 h-4">
+                        <Users size={16} className="text-neutral-600" />
+                      </div>
+                    )}
                     <span className="text-xs font-medium text-black">
-                      Par utilisateur
+                      {currentContent.userCount}
                     </span>
                   </div>
                 </div>
 
-                <CardDescription className="text-sm text-neutral-500 leading-5 whitespace-pre-line">
+                <CardDescription className="text-sm text-neutral-500 leading-5">
                   {currentContent.description}
                 </CardDescription>
               </div>
 
               {/* Price */}
               <div className="mt-6">
-                <div className="text-[20px] font-bold text-black leading-[28px]">
-                  {currentContent.price}
-                </div>
-                {currentContent.priceSubtext && (
-                  <div className="text-base font-medium text-black leading-6">
-                    {currentContent.priceSubtext}
+                {activeTab === "team" ? (
+                  <div className="bg-white border border-neutral-300 rounded-md px-3 py-2 flex items-center justify-between min-h-10">
+                    <div className="text-sm text-neutral-900">
+                      <span className="font-bold">{currentContent.price}</span>
+                      <span className="ml-1">
+                        {currentContent.priceSubtext}
+                      </span>
+                    </div>
+                    <div className="opacity-50 w-4 h-4">
+                      <ChevronDown size={16} className="text-neutral-600" />
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-[20px] font-bold text-black leading-[28px]">
+                    {currentContent.price}
+                    <span className="font-medium text-[18px] ml-1">
+                      {currentContent.priceSubtext}
+                    </span>
                   </div>
                 )}
               </div>
@@ -151,10 +160,7 @@ export default function IncubatorPricingPage() {
               <div className="absolute h-36 w-[150px] -left-[100px] -top-[145.5px]">
                 <img src={imgEllipse13} alt="" className="w-full h-full" />
               </div>
-              <div className="absolute h-[197px] w-[200px] left-[212px] top-[184px]">
-                <img src={imgContainer} alt="" className="w-full h-full" />
-              </div>
-              <div className="absolute h-[197px] w-[200px] left-[-150px] top-[-150px]">
+              <div className="absolute h-[197px] w-[200px] left-[202px] top-[164px]">
                 <img src={imgContainer} alt="" className="w-full h-full" />
               </div>
             </div>

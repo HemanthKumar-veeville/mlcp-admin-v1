@@ -79,7 +79,7 @@ export default function StartupFormPage() {
     setIsSubmitting(true);
     await new Promise((resolve) => setTimeout(resolve, 2000));
     setIsSubmitting(false);
-    router.push("/validation");
+    router.push(`/validation?mode=startup`);
   };
 
   return (

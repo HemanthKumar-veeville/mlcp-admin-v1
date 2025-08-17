@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { ArrowLeft, Menu, User, Loader2 } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function ValidationPage() {
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
@@ -13,6 +13,10 @@ export default function ValidationPage() {
   const [submissionMessage, setSubmissionMessage] = useState("");
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // Extract mode from URL query parameters
+  const mode = searchParams.get("mode");
   // Handle resend cooldown timer
   useEffect(() => {
     if (resendCooldown > 0) {
@@ -80,7 +84,11 @@ export default function ValidationPage() {
           setOtp(["", "", "", "", "", ""]);
           // You can redirect here or show success state
           console.log("OTP submitted successfully:", otpString);
-          router.push(`/incubator_search`);
+          if (mode === "startup") {
+            router.push(`/startup_search`);
+          } else {
+            router.push(`/incubator_search`);
+          }
         } else {
           // Clear OTP on failure
           setOtp(["", "", "", "", "", ""]);

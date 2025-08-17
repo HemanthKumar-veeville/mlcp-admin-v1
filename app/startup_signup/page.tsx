@@ -11,30 +11,22 @@ import { useRouter } from "next/navigation";
 
 interface FormData {
   logo: string;
-  incubatorName: string;
-  campusName: string;
-  address: string;
-  phone: string;
+  startupName: string;
+  startupAddress: string;
   email: string;
 }
 
-export default function IncubatorSignupPage() {
+export default function StartupSignupPage() {
   const router = useRouter();
   const [formData, setFormData] = useState<FormData>({
     logo: "",
-    incubatorName: "Ieseg",
-    campusName: "Ieseg - Vauban",
-    address: "4/26 Rue Pasteur, Lille 59000",
-    phone: "+33 3 20 00 00 00",
-    email: "contact@example.com",
+    startupName: "How i met your tech",
+    startupAddress: "4/26 Rue pasteur, Lille 59000",
+    email: "contact@himyt.com",
   });
 
   const handleInputChange = (field: keyof FormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
-  };
-
-  const handleContinue = () => {
-    router.push("/incubator_pricing");
   };
 
   return (
@@ -48,7 +40,7 @@ export default function IncubatorSignupPage() {
       <main className="flex-1 px-4 max-w-[320px] mx-auto mt-8">
         {/* Back Button and Title */}
         <div className="flex flex-col gap-4 mb-4">
-          <Link href="/incubator_search" className="w-full">
+          <Link href="/startup_search" className="w-full">
             <button className="flex items-center gap-2 w-full text-left">
               <ArrowLeft className="text-[#2a2a2a] text-2xl" />
               <span className="font-medium text-[#2a2a2a] text-xs">Retour</span>
@@ -57,7 +49,7 @@ export default function IncubatorSignupPage() {
         </div>
 
         <h2 className="text-2xl font-bold text-[#2A2A2A] mb-4">
-          Informations de l'incubateur
+          Informations de la startup
         </h2>
 
         <form className="space-y-4">
@@ -79,16 +71,16 @@ export default function IncubatorSignupPage() {
 
             <div>
               <Label
-                htmlFor="incubatorName"
+                htmlFor="startupName"
                 className="text-sm font-medium text-[#2A2A2A] mb-1"
               >
-                Nom de l'incubateur*
+                Nom de la startup*
               </Label>
               <Input
-                id="incubatorName"
-                value={formData.incubatorName}
+                id="startupName"
+                value={formData.startupName}
                 onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                  handleInputChange("incubatorName", e.target.value)
+                  handleInputChange("startupName", e.target.value)
                 }
                 className="w-full h-10 px-3 py-2 bg-white border border-neutral-300 rounded-md text-sm text-[rgba(17,17,19,0.6)]"
               />
@@ -96,50 +88,16 @@ export default function IncubatorSignupPage() {
 
             <div>
               <Label
-                htmlFor="campusName"
+                htmlFor="startupAddress"
                 className="text-sm font-medium text-[#2A2A2A] mb-1"
               >
-                Nom du campus*
+                Adresse de la startup*
               </Label>
               <Input
-                id="campusName"
-                value={formData.campusName}
+                id="startupAddress"
+                value={formData.startupAddress}
                 onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                  handleInputChange("campusName", e.target.value)
-                }
-                className="w-full h-10 px-3 py-2 bg-white border border-neutral-300 rounded-md text-sm text-[rgba(17,17,19,0.6)]"
-              />
-            </div>
-
-            <div>
-              <Label
-                htmlFor="address"
-                className="text-sm font-medium text-[#2A2A2A] mb-1"
-              >
-                Adresse*
-              </Label>
-              <Input
-                id="address"
-                value={formData.address}
-                onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                  handleInputChange("address", e.target.value)
-                }
-                className="w-full h-10 px-3 py-2 bg-white border border-neutral-300 rounded-md text-sm text-[rgba(17,17,19,0.6)]"
-              />
-            </div>
-
-            <div>
-              <Label
-                htmlFor="phone"
-                className="text-sm font-medium text-[#2A2A2A] mb-1"
-              >
-                Téléphone*
-              </Label>
-              <Input
-                id="phone"
-                value={formData.phone}
-                onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                  handleInputChange("phone", e.target.value)
+                  handleInputChange("startupAddress", e.target.value)
                 }
                 className="w-full h-10 px-3 py-2 bg-white border border-neutral-300 rounded-md text-sm text-[rgba(17,17,19,0.6)]"
               />
@@ -154,6 +112,7 @@ export default function IncubatorSignupPage() {
               </Label>
               <Input
                 id="email"
+                type="email"
                 value={formData.email}
                 onChange={(e: ChangeEvent<HTMLInputElement>) =>
                   handleInputChange("email", e.target.value)
@@ -166,7 +125,7 @@ export default function IncubatorSignupPage() {
           <Button
             onClick={(e) => {
               e.preventDefault();
-              router.push("/incubator_pricing");
+              router.push("/incubator_linked_q");
               e.stopPropagation();
             }}
             className="w-full h-10 bg-[#CF4326] text-white hover:bg-[#CF4326]/90 rounded-md text-sm font-medium"
