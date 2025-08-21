@@ -1,22 +1,47 @@
-import type { Metadata } from "next";
+"use client";
+
 import Image from "next/image";
 import SignInButton from "@/components/ui/sign-in-button";
 import SignUpButton from "@/components/ui/sign-up-button";
-
-export const metadata: Metadata = {
-  title: "MyLittleCockpit - Plateforme de gestion",
-  description: "Votre plateforme de gestion pour startups et incubateurs",
-  openGraph: {
-    title: "MyLittleCockpit - Plateforme de gestion",
-    description: "Votre plateforme de gestion pour startups et incubateurs",
-    url: "https://mylittlecockpit.com",
-  },
-  alternates: {
-    canonical: "https://mylittlecockpit.com",
-  },
-};
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { getCurrentUser, resendOTP } from "@/lib/store/slices/authSlice";
+import { AppDispatch, RootState } from "@/lib/store/store";
+import { useRouter } from "next/navigation";
 
 export default function HomePage() {
+  const dispatch = useDispatch<AppDispatch>();
+  const { user } = useSelector((state: RootState) => state.auth);
+  const router = useRouter();
+
+  async function getMe() {
+    await dispatch(getCurrentUser());
+  }
+
+  async function routingUsers() {
+    if (user?.logged_in) {
+      if (!user?.verified && user?.user_type) {
+        try {
+          await dispatch(resendOTP());
+          router.push(`/validation?mode=${user?.user_type}`);
+        } catch (error) {
+          console.error("Error sending OTP:", error);
+        }
+      } else if (user?.user_type === "startup" && !user?.startup_id) {
+        router.push("/startup_search");
+      } else if (user?.user_type === "incubator" && !user?.incubator_id) {
+        router.push("/incubator_search");
+      } else {
+        router.push("/");
+      }
+    }
+  }
+
+  useEffect(() => {
+    !user && getMe();
+    user && routingUsers();
+  }, [user]);
+
   return (
     <main className="flex flex-col items-center justify-between px-4 pt-8">
       <div className="w-full opacity-85 relative mb-8">
@@ -70,7 +95,7 @@ export default function HomePage() {
       </div>
 
       {/* Buttons */}
-      <div className="w-full space-y-2">
+      <div className="w-full space-y-2 gap-4 flex flex-col items-center">
         <SignUpButton />
         <SignInButton />
       </div>

@@ -1,15 +1,43 @@
+"use client";
+
 import type { Metadata } from "next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArrowLeft, Menu, User } from "lucide-react";
 import Link from "next/link";
-
-export const metadata: Metadata = {
-  title: "MyLittleCockpit - Connexion",
-  description: "Connectez-vous à votre compte MyLittleCockpit",
-};
+import { useDispatch, useSelector } from "react-redux";
+import { login } from "@/lib/store/slices/authSlice";
+import { AppDispatch, RootState } from "@/lib/store/store";
+import { useState, FormEvent } from "react";
+import { useRouter } from "next/navigation";
 
 export default function SignInPage() {
+  const dispatch = useDispatch<AppDispatch>();
+  const { isLoading, error } = useSelector((state: RootState) => state.auth);
+  const router = useRouter();
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleLogin = async (e: FormEvent) => {
+    e.preventDefault();
+    try {
+      await dispatch(login(formData));
+      router.push("/");
+    } catch (error: any) {
+      console.error(error.response?.data?.message || "Login failed");
+    }
+  };
+
   return (
     <main className="flex h-full min-h-[500px] flex-col bg-[#fdfaf6]">
       {/* Main Content */}
@@ -32,7 +60,7 @@ export default function SignInPage() {
           </div>
 
           {/* Form */}
-          <div className="flex flex-col gap-3">
+          <form onSubmit={handleLogin} className="flex flex-col gap-3">
             <div className="flex flex-col gap-2">
               {/* Email Input */}
               <div className="flex flex-col gap-1.5">
@@ -44,9 +72,13 @@ export default function SignInPage() {
                 </label>
                 <Input
                   id="email"
+                  name="email"
                   type="email"
+                  value={formData.email}
+                  onChange={handleChange}
                   placeholder="john@gmail.com"
                   className="h-10 rounded-md border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-600"
+                  required
                 />
               </div>
 
@@ -60,12 +92,18 @@ export default function SignInPage() {
                 </label>
                 <Input
                   id="password"
+                  name="password"
                   type="password"
+                  value={formData.password}
+                  onChange={handleChange}
                   placeholder="*********"
                   className="h-10 rounded-md border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-600"
+                  required
                 />
               </div>
             </div>
+
+            {error && <p className="text-sm text-red-600">{error}</p>}
 
             {/* Forgot Password */}
             <Link
@@ -74,13 +112,17 @@ export default function SignInPage() {
             >
               Mot de passe oublié
             </Link>
-          </div>
-        </div>
 
-        {/* Continue Button */}
-        <Button className="mt-auto mb-8 w-full bg-[#cf4326] text-sm font-medium text-white hover:bg-[#cf4326]/90">
-          Continuer
-        </Button>
+            {/* Continue Button */}
+            <Button
+              type="submit"
+              disabled={isLoading}
+              className="mt-auto mb-8 w-full bg-[#cf4326] text-sm font-medium text-white hover:bg-[#cf4326]/90 disabled:opacity-50"
+            >
+              {isLoading ? "Chargement..." : "Continuer"}
+            </Button>
+          </form>
+        </div>
       </div>
     </main>
   );

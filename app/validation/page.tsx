@@ -4,19 +4,31 @@ import { useState, useRef, useEffect } from "react";
 import { ArrowLeft, Menu, User, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
+import {
+  validateEmail,
+  resendOTP,
+  clearError,
+  clearOTPMessage,
+} from "../../lib/store/slices/authSlice";
+import { useAppDispatch, useAppSelector } from "../../lib/store/store";
 
 export default function ValidationPage() {
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isResending, setIsResending] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(0);
   const [submissionMessage, setSubmissionMessage] = useState("");
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const router = useRouter();
   const searchParams = useSearchParams();
+  const dispatch = useAppDispatch();
 
   // Extract mode from URL query parameters
   const mode = searchParams.get("mode");
+
+  // Get auth state from Redux
+  const { isLoading, error, otpMessage, isEmailValidated } = useAppSelector(
+    (state) => state.auth
+  );
+
   // Handle resend cooldown timer
   useEffect(() => {
     if (resendCooldown > 0) {
@@ -26,6 +38,34 @@ export default function ValidationPage() {
       return () => clearTimeout(timer);
     }
   }, [resendCooldown]);
+
+  // Handle Redux state changes
+  useEffect(() => {
+    if (otpMessage) {
+      setSubmissionMessage(otpMessage);
+      dispatch(clearOTPMessage());
+    }
+  }, [otpMessage, dispatch]);
+
+  useEffect(() => {
+    if (error) {
+      setSubmissionMessage(error);
+      dispatch(clearError());
+    }
+  }, [error, dispatch]);
+
+  useEffect(() => {
+    if (isEmailValidated) {
+      // Clear OTP on success
+      setOtp(["", "", "", "", "", ""]);
+      console.log("Email validated successfully");
+      if (mode === "startup") {
+        router.push(`/startup_search`);
+      } else {
+        router.push(`/incubator_search`);
+      }
+    }
+  }, [isEmailValidated, mode, router]);
 
   const handleInputChange = (index: number, value: string) => {
     if (value.length > 1) return; // Only allow single digit
@@ -50,101 +90,38 @@ export default function ValidationPage() {
     }
   };
 
-  // Simulate API call for OTP submission
-  const simulateApiCall = (): Promise<{
-    success: boolean;
-    message: string;
-  }> => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        // Simulate 90% success rate
-        const isSuccess = Math.random() > 0.1;
-        resolve({
-          success: isSuccess,
-          message: isSuccess
-            ? "Code vérifié avec succès!"
-            : "Code incorrect. Veuillez réessayer.",
-        });
-      }, 2000); // 2 second delay
-    });
-  };
-
   const handleContinue = async () => {
     const otpString = otp.join("");
     if (otpString.length === 6) {
-      setIsSubmitting(true);
       setSubmissionMessage("");
 
       try {
-        const result = await simulateApiCall();
-        setSubmissionMessage(result.message);
-
-        if (result.success) {
-          // Clear OTP on success
-          setOtp(["", "", "", "", "", ""]);
-          // You can redirect here or show success state
-          console.log("OTP submitted successfully:", otpString);
-          if (mode === "startup") {
-            router.push(`/startup_search`);
-          } else {
-            router.push(`/incubator_search`);
-          }
-        } else {
-          // Clear OTP on failure
-          setOtp(["", "", "", "", "", ""]);
-          // Focus first input for retry
-          inputRefs.current[0]?.focus();
-        }
+        // Dispatch the actual validateEmail action
+        await dispatch(validateEmail(otpString));
       } catch (error) {
         setSubmissionMessage("Une erreur s'est produite. Veuillez réessayer.");
         console.error("OTP submission error:", error);
-      } finally {
-        setIsSubmitting(false);
       }
     }
-  };
-
-  // Simulate API call for resend OTP
-  const simulateResendApiCall = (): Promise<{
-    success: boolean;
-    message: string;
-  }> => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        // Simulate 95% success rate
-        const isSuccess = Math.random() > 0.05;
-        resolve({
-          success: isSuccess,
-          message: isSuccess
-            ? "Nouveau code envoyé avec succès!"
-            : "Échec de l'envoi. Veuillez réessayer.",
-        });
-      }, 1500); // 1.5 second delay
-    });
   };
 
   const handleResendCode = async () => {
     if (resendCooldown > 0) return;
 
-    setIsResending(true);
     setSubmissionMessage("");
 
     try {
-      const result = await simulateResendApiCall();
-      setSubmissionMessage(result.message);
+      // Dispatch the actual resendOTP action
+      await dispatch(resendOTP());
 
-      if (result.success) {
-        // Set 30 second cooldown
-        setResendCooldown(30);
-        console.log("Resend code requested successfully");
-      }
+      // Set 30 second cooldown on success
+      setResendCooldown(30);
+      console.log("Resend code requested successfully");
     } catch (error) {
       setSubmissionMessage(
         "Une erreur s'est produite lors de l'envoi du code."
       );
       console.error("Resend code error:", error);
-    } finally {
-      setIsResending(false);
     }
   };
 
@@ -200,17 +177,19 @@ export default function ValidationPage() {
             </div>
 
             {/* Message Display */}
-            {submissionMessage && (
-              <div
-                className={`mb-6 w-full p-3 rounded-md text-sm ${
-                  submissionMessage.includes("succès")
-                    ? "bg-green-100 text-green-800 border border-green-200"
-                    : "bg-red-100 text-red-800 border border-red-200"
-                }`}
-              >
-                {submissionMessage}
-              </div>
-            )}
+            {submissionMessage &&
+              submissionMessage !== "" &&
+              submissionMessage !== null && (
+                <div
+                  className={`mb-6 w-full p-3 rounded-md text-sm ${
+                    submissionMessage
+                      ? "bg-green-100 text-green-800 border border-green-200"
+                      : "bg-red-100 text-red-800 border border-red-200"
+                  }`}
+                >
+                  {submissionMessage}
+                </div>
+              )}
 
             {/* OTP Input Container */}
             <div className="box-border content-stretch flex flex-col gap-4 items-center justify-center p-0 relative shrink-0 w-full">
@@ -258,10 +237,10 @@ export default function ValidationPage() {
                   ) : (
                     <button
                       onClick={handleResendCode}
-                      disabled={isResending}
+                      disabled={isLoading}
                       className="underline block leading-[20px] text-[14px] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                     >
-                      {isResending && (
+                      {isLoading && (
                         <Loader2 size={14} className="animate-spin" />
                       )}
                       Renvoyez le code
@@ -278,11 +257,11 @@ export default function ValidationPage() {
           <div className="basis-0 font-medium grow leading-[0] min-h-px min-w-px not-italic relative shrink-0 text-[#ffffff] text-[14px] text-center">
             <button
               onClick={handleContinue}
-              disabled={otp.join("").length !== 6 || isSubmitting}
+              disabled={otp.join("").length !== 6 || isLoading}
               className="block leading-[20px] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 w-full"
             >
-              {isSubmitting && <Loader2 size={16} className="animate-spin" />}
-              {isSubmitting ? "Vérification..." : "Continuer"}
+              {isLoading && <Loader2 size={16} className="animate-spin" />}
+              {isLoading ? "Vérification..." : "Continuer"}
             </button>
           </div>
         </div>

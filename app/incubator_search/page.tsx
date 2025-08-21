@@ -1,42 +1,77 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ArrowLeft, User, Menu, Search } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../../lib/store/store";
+import { getAllIncubators } from "../../lib/store/slices/authSlice";
 
 // Figma design assets
-const imgEllipse =
-  "http://localhost:3845/assets/702155418d724d422dab16aaa56b11f9081c081d.png";
-const imgSeparator =
-  "http://localhost:3845/assets/3c69a86da418b18237c56f2cbb2a70eac379dbcb.svg";
-const img =
-  "http://localhost:3845/assets/2748976e62ae2cddd12e956d5de4d25b748c56b5.svg";
-const img1 =
-  "http://localhost:3845/assets/691e57551526b37f88bed954ecdecdce3b028152.svg";
-const imgSeparator1 =
-  "http://localhost:3845/assets/193810a6849a963964124242e6c8fb23d099bfd7.svg";
-const imgSeparator2 =
-  "http://localhost:3845/assets/f68ca7a68c62482e07580c63adabf6549e6797dd.svg";
-
-// Mock data for incubators
-const incubators = [
-  { id: 1, name: "Ieseg", logo: imgEllipse },
-  { id: 2, name: "How i met your tech", logo: imgEllipse },
-  { id: 3, name: "How i met your tech", logo: imgEllipse },
-  { id: 4, name: "How i met your tech", logo: imgEllipse },
-  { id: 5, name: "How i met your tech", logo: imgEllipse },
-];
+const imgEllipse = "/ellipse.png";
 
 export default function IncubatorSearchPage() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedIncubator, setSelectedIncubator] = useState<number | null>(
+  const [selectedIncubator, setSelectedIncubator] = useState<string | null>(
     null
   );
   const router = useRouter();
-  const filteredIncubators = incubators.filter((incubator) =>
-    incubator.name.toLowerCase().includes(searchQuery.toLowerCase())
+  const dispatch = useDispatch<AppDispatch>();
+
+  // Get incubators data from Redux store
+  const {
+    incubators,
+    incubatorLoading,
+    incubatorError,
+    incubatorCurrentPage,
+    incubatorTotalPages,
+  } = useSelector((state: RootState) => state.auth);
+
+  // Fetch incubators on component mount
+  useEffect(() => {
+    dispatch(
+      getAllIncubators({
+        count: 20,
+        page_no: 1,
+        sort_by: "name",
+      })
+    );
+  }, [dispatch]);
+
+  // Filter incubators based on search query
+  const filteredIncubators = incubators.filter(
+    (incubator) =>
+      incubator.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      incubator.email.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  // Handle search with API call
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+
+    // Only make API call if query has minimum 3 characters or is empty
+    if (query.trim().length >= 3) {
+      dispatch(
+        getAllIncubators({
+          count: 20,
+          page_no: 1,
+          sort_by: "name",
+          search: query,
+        })
+      );
+    } else if (query.trim().length === 0) {
+      // Reset to initial state when search is cleared
+      dispatch(
+        getAllIncubators({
+          count: 20,
+          page_no: 1,
+          sort_by: "name",
+        })
+      );
+    }
+    // If query length is 1-2 characters, don't make API call - just filter locally
+  };
 
   return (
     <div className="bg-[#fdfaf6] flex flex-col">
@@ -66,7 +101,7 @@ export default function IncubatorSearchPage() {
                 type="text"
                 placeholder="Recherchez votre incubateur"
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(e) => handleSearch(e.target.value)}
                 className="flex-1 text-sm text-neutral-500 bg-transparent border-none outline-none placeholder-neutral-500"
               />
               <Search className="text-neutral-500 w-4 h-4 ml-2" />
@@ -76,32 +111,69 @@ export default function IncubatorSearchPage() {
           {/* Separator */}
           <div className="h-px bg-neutral-300 w-full my-4"></div>
 
-          {/* Incubator List */}
-          <div className="flex flex-col gap-2">
-            {/* Incubator Items */}
-            {filteredIncubators.map((incubator, index) => (
-              <div key={incubator.id}>
-                <button
-                  onClick={() => setSelectedIncubator(incubator.id)}
-                  className={`w-full flex items-center gap-2 px-4 py-3 min-h-11 hover:bg-neutral-50 transition-colors ${
-                    selectedIncubator === incubator.id ? "bg-neutral-50" : ""
-                  }`}
-                >
-                  <img
-                    src={incubator.logo}
-                    alt={incubator.name}
-                    className="w-8 h-auto object-contain"
-                  />
-                  <span className="font-medium text-sm text-neutral-600 text-left">
-                    {incubator.name}
-                  </span>
-                </button>
-                {index < filteredIncubators.length - 1 && (
-                  <div className="h-px bg-neutral-300 w-full"></div>
-                )}
+          {/* Loading State */}
+          {incubatorLoading && (
+            <div className="flex items-center justify-center py-8">
+              <div className="text-sm text-neutral-500">Chargement...</div>
+            </div>
+          )}
+
+          {/* Error State */}
+          {incubatorError && (
+            <div className="flex items-center justify-center py-8">
+              <div className="text-sm text-red-500">
+                Erreur: {incubatorError}
               </div>
-            ))}
-          </div>
+            </div>
+          )}
+
+          {/* Incubator List */}
+          {!incubatorLoading && !incubatorError && (
+            <div className="flex flex-col gap-2">
+              {filteredIncubators.length === 0 ? (
+                <div className="flex items-center justify-center py-8 h-[500px]">
+                  <div className="text-sm text-neutral-500">
+                    {searchQuery
+                      ? "Aucun incubateur trouvé"
+                      : "Aucun incubateur disponible"}
+                  </div>
+                </div>
+              ) : (
+                filteredIncubators.map((incubator, index) => (
+                  <div key={incubator.id}>
+                    <button
+                      onClick={() => setSelectedIncubator(incubator.id)}
+                      className={`w-full flex items-center gap-4 px-4 py-3 min-h-11 hover:bg-neutral-50 transition-colors ${
+                        selectedIncubator === incubator.id
+                          ? "bg-neutral-50"
+                          : ""
+                      }`}
+                    >
+                      <img
+                        src={incubator.logo}
+                        alt={incubator.name}
+                        className="w-16 h-auto object-contain rounded-xs"
+                        onError={(e) => {
+                          e.currentTarget.src = imgEllipse;
+                        }}
+                      />
+                      <div className="flex flex-col items-start">
+                        <span className="font-medium text-sm text-neutral-600 text-left">
+                          {incubator.name}
+                        </span>
+                        <span className="text-xs text-neutral-400">
+                          {incubator.email}
+                        </span>
+                      </div>
+                    </button>
+                    {index < filteredIncubators.length - 1 && (
+                      <div className="h-px bg-neutral-300 w-full"></div>
+                    )}
+                  </div>
+                ))
+              )}
+            </div>
+          )}
         </div>
 
         {/* Bottom Buttons */}

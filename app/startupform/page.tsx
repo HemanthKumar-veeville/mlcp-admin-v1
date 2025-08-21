@@ -2,6 +2,21 @@
 
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+
+const convertFileToBase64 = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === "string") {
+        resolve(reader.result);
+      } else {
+        reject(new Error("Failed to convert file to base64"));
+      }
+    };
+    reader.onerror = () => reject(reader.error);
+    reader.readAsDataURL(file);
+  });
+};
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
@@ -17,6 +32,9 @@ import {
 } from "@/components/ui/form";
 import { ArrowLeft, Menu, User } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { registerStartup } from "@/lib/store/slices/authSlice";
+import { useAppDispatch } from "@/lib/store/store";
+import { StartupRegistrationData } from "@/lib/services/authService";
 
 const formSchema = z
   .object({
@@ -46,6 +64,7 @@ export default function StartupFormPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [profilePreview, setProfilePreview] = useState<string | null>(null);
   const router = useRouter();
+  const dispatch = useAppDispatch();
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -76,10 +95,44 @@ export default function StartupFormPage() {
   };
 
   const onSubmit = async (data: FormData) => {
-    setIsSubmitting(true);
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    setIsSubmitting(false);
-    router.push(`/validation?mode=startup`);
+    try {
+      setIsSubmitting(true);
+      const registrationData: StartupRegistrationData = {
+        firstname: data.firstName,
+        lastname: data.lastName,
+        email: data.email,
+        phone: data.phone,
+        password: data.password,
+        country_code: "FR", // Default to France since the form is in French
+        profile_picture:
+          data.profilePicture instanceof File
+            ? await convertFileToBase64(data.profilePicture)
+            : undefined,
+      };
+
+      const result = await dispatch(registerStartup(registrationData));
+
+      if (registerStartup.fulfilled.match(result)) {
+        router.push(`/validation?mode=startup`);
+      } else {
+        // Handle registration error
+        const errorMessage = result.payload as string;
+        form.setError("root", {
+          type: "manual",
+          message:
+            errorMessage ||
+            "Une erreur s'est produite lors de l'inscription. Veuillez réessayer.",
+        });
+      }
+    } catch (error) {
+      form.setError("root", {
+        type: "manual",
+        message:
+          "Une erreur s'est produite lors de l'inscription. Veuillez réessayer.",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -123,8 +176,12 @@ export default function StartupFormPage() {
                     <p className="block leading-[20px]">Photo de profil</p>
                   </div>
                   <FileUpload
-                    onFileSelect={handleProfilePictureChange}
-                    previewUrl={profilePreview}
+                    id="profile-picture"
+                    value={profilePreview || ""}
+                    onChange={(value) => {
+                      // This is just for display, actual file handling is done in handleProfilePictureChange
+                      setProfilePreview(value);
+                    }}
                     className="w-full"
                   />
                 </div>
@@ -313,6 +370,11 @@ export default function StartupFormPage() {
                   </span>
                 </Button>
               </form>
+              {form.formState.errors.root && (
+                <div className="text-[#cf4326] text-sm mt-2">
+                  {form.formState.errors.root.message}
+                </div>
+              )}
             </Form>
           </div>
         </div>

@@ -5,6 +5,7 @@ import "./globals.css";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 import { ThemeProvider } from "@/components/theme-provider";
+import { ReduxProvider } from "@/components/providers/redux-provider";
 
 const montserrat = Montserrat({
   subsets: ["latin"],
@@ -138,10 +139,12 @@ export default function RootLayout({
         />
       </head>
       <body className={montserrat.className}>
-        <div className="bg-[#fdfaf6] w-full h-full max-w-[320px] max-h-[568px] mx-auto">
-          <Navbar />
-          <main className="flex-1">{children}</main>
-        </div>
+        <ReduxProvider>
+          <div className="bg-[#fdfaf6] w-full h-screen max-w-[400px] max-h-screen mx-auto">
+            <Navbar />
+            <main className="flex-1">{children}</main>
+          </div>
+        </ReduxProvider>
       </body>
     </html>
   );

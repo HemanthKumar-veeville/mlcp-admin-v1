@@ -16,6 +16,9 @@ import {
 } from "@/components/ui/form";
 import { ArrowLeft, Menu, User } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { registerIncubator } from "@/lib/store/slices/authSlice";
+import { IncubatorRegistrationData } from "@/lib/services/authService";
+import { useAppDispatch } from "@/lib/store/store";
 
 const formSchema = z
   .object({
@@ -43,6 +46,7 @@ type FormData = z.infer<typeof formSchema>;
 export default function IncubatorFormPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
+  const dispatch = useAppDispatch();
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -57,10 +61,40 @@ export default function IncubatorFormPage() {
   });
 
   const onSubmit = async (data: FormData) => {
-    setIsSubmitting(true);
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    setIsSubmitting(false);
-    router.push("/validation");
+    try {
+      setIsSubmitting(true);
+      const registrationData: IncubatorRegistrationData = {
+        firstname: data.firstName,
+        lastname: data.lastName,
+        email: data.email,
+        phone: data.phone,
+        password: data.password,
+        country_code: "FR", // Default to France since the form is in French
+      };
+
+      const result = await dispatch(registerIncubator(registrationData));
+
+      if (registerIncubator.fulfilled.match(result)) {
+        router.push(`/validation?mode=incubator`);
+      } else {
+        // Handle registration error
+        const errorMessage = result.payload as string;
+        form.setError("root", {
+          type: "manual",
+          message:
+            errorMessage ||
+            "Une erreur s'est produite lors de l'inscription. Veuillez réessayer.",
+        });
+      }
+    } catch (error) {
+      form.setError("root", {
+        type: "manual",
+        message:
+          "Une erreur s'est produite lors de l'inscription. Veuillez réessayer.",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -282,6 +316,11 @@ export default function IncubatorFormPage() {
                   </span>
                 </Button>
               </form>
+              {form.formState.errors.root && (
+                <div className="text-[#cf4326] text-sm mt-2">
+                  {form.formState.errors.root.message}
+                </div>
+              )}
             </Form>
           </div>
         </div>
